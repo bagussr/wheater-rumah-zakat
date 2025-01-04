@@ -6,46 +6,55 @@ import 'package:flutter/foundation.dart';
 import '../../domain/entity/forecast.dart';
 
 class ForecastModel {
+  final DateTime dt;
   final MainForecast main;
   final List<Weather> weather;
   final Clouds clouds;
   final Wind wind;
   final num visibility;
   final num pop;
-  ForecastModel({
-    required this.main,
-    required this.weather,
-    required this.clouds,
-    required this.wind,
-    required this.visibility,
-    required this.pop,
-  });
+  final String dtTxt;
+  ForecastModel(
+      {required this.dt,
+      required this.main,
+      required this.weather,
+      required this.clouds,
+      required this.wind,
+      required this.visibility,
+      required this.pop,
+      required this.dtTxt});
 
   ForecastModel copyWith({
+    DateTime? dt,
     MainForecast? main,
     List<Weather>? weather,
     Clouds? clouds,
     Wind? wind,
     num? visibility,
     num? pop,
+    String? dtTxt,
   }) {
     return ForecastModel(
-      main: main ?? this.main,
-      weather: weather ?? this.weather,
-      clouds: clouds ?? this.clouds,
-      wind: wind ?? this.wind,
-      visibility: visibility ?? this.visibility,
-      pop: pop ?? this.pop,
-    );
+        dt: dt ?? this.dt,
+        main: main ?? this.main,
+        weather: weather ?? this.weather,
+        clouds: clouds ?? this.clouds,
+        wind: wind ?? this.wind,
+        visibility: visibility ?? this.visibility,
+        pop: pop ?? this.pop,
+        dtTxt: dtTxt ?? this.dtTxt);
   }
 
   Forecast toEntity() => Forecast(
-      main: main,
-      weather: weather,
-      clouds: clouds,
-      wind: wind,
-      pop: pop,
-      visibility: visibility);
+        dt: dt,
+        main: main,
+        weather: weather,
+        clouds: clouds,
+        wind: wind,
+        pop: pop,
+        visibility: visibility,
+        dtTxt: dtTxt,
+      );
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -60,6 +69,7 @@ class ForecastModel {
 
   factory ForecastModel.fromMap(Map<String, dynamic> map) {
     return ForecastModel(
+      dt: DateTime.parse(map['dt_txt']),
       main: MainForecast.fromMap(map['main']),
       weather: List<Weather>.from(
         (map['weather'] as List<dynamic>).map<Weather>(
@@ -70,6 +80,7 @@ class ForecastModel {
       wind: Wind.fromMap(map['wind']),
       visibility: map['visibility'],
       pop: map['pop'],
+      dtTxt: map['dt_txt'],
     );
   }
 

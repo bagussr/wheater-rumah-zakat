@@ -65,6 +65,6 @@ class WeatherDatasourceImplements implements WeatherDatasource {
         return GeoModel.fromMap(data[0]);
       }
     }
-    throw 'No Data';
+    throw 'Kota / Kabupaten tidak tersedia';
   }
 }

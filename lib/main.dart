@@ -78,6 +78,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          scaffoldBackgroundColor: Color(0xffE9ECF1),
           useMaterial3: true,
           appBarTheme: customAppBarTheme(),
         ),

@@ -20,6 +20,7 @@ dependencies:
     equatable: ^2.0.7
     flutter_dotenv: ^5.2.1
     searchfield: ^1.2.2
+    intl: ^0.20.1
 
 dev_dependencies:
     flutter_test:

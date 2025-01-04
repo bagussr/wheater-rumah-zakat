@@ -60,7 +60,7 @@ class _FormWeatherViewState extends State<FormWeatherView> {
             ));
           }
           if (state is WeatherCheck) {
-            Navigator.popAndPushNamed(context, '/weather');
+            Navigator.pushNamed(context, '/weather');
           }
         },
         builder: (context, state) {

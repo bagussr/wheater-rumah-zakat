@@ -1,19 +1,22 @@
 class Forecast {
   const Forecast({
+    required this.dt,
     required this.main,
     required this.weather,
     required this.clouds,
     required this.wind,
     required this.pop,
     required this.visibility,
+    required this.dtTxt,
   });
-
+  final DateTime dt;
   final MainForecast main;
   final List<Weather> weather;
   final Clouds clouds;
   final Wind wind;
   final num visibility;
   final num pop;
+  final String dtTxt;
 }
 
 class Wind {

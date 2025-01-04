@@ -5,7 +5,7 @@ String? apiKey = dotenv.env['API_KEY'] ??
 
 String weatherUri(num lat, num lon) {
   String xApi =
-      "https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$apiKey";
+      "https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$apiKey&lang=id";
   return xApi;
 }
 
