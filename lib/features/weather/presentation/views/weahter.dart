@@ -22,6 +22,7 @@ class _WeatherViewState extends State<WeatherView> {
   late Timer _timer;
   String _currentTime = '';
   String _currentDate = '';
+  List<String> listDate = [];
 
   @override
   void initState() {
@@ -54,17 +55,16 @@ class _WeatherViewState extends State<WeatherView> {
     }
   }
 
-  List<Forecast> groupedForecast(List<Forecast> data) {
-    List<Forecast> list = [];
+  Map<String, List<Forecast>> groupedForecast(List<Forecast> data) {
+    final Map<String, List<Forecast>> map = {};
     for (var tmp in data) {
       var date = tmp.dtTxt.split(' ')[0];
-      if (list
-          .where((element) => element.dtTxt.split(' ')[0] == date)
-          .isEmpty) {
-        list.add(tmp);
+      if (listDate.where((element) => element == date).isEmpty) {
+        listDate.add(date);
       }
+      map.putIfAbsent(date, () => []).add(tmp);
     }
-    return list;
+    return map;
   }
 
   // get day from dt_txt
@@ -72,6 +72,13 @@ class _WeatherViewState extends State<WeatherView> {
     final dateTime = DateTime.parse(dtTxt);
     final dayOfWeek = DateFormat('EEEE').format(dateTime).substring(0, 3);
     return dayOfWeek;
+  }
+
+  // get time from dt_txt
+  String getTimeFromDtTxt(String dtTxt) {
+    final dateTime = DateTime.parse(dtTxt);
+    final time = DateFormat('hh:mm a').format(dateTime);
+    return time;
   }
 
   @override
@@ -95,6 +102,7 @@ class _WeatherViewState extends State<WeatherView> {
           if (state is WeatherCheck) {
             final currentWeather = state.getForecasts[0];
             final forecasts = groupedForecast(state.getForecasts);
+
             return Padding(
               padding: const EdgeInsets.all(24),
               child: Row(
@@ -118,18 +126,19 @@ class _WeatherViewState extends State<WeatherView> {
                         SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
-                          height: 120,
+                          height: 240,
                           child: ListView.separated(
                               shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.all(8),
+                              scrollDirection: Axis.vertical,
+                              padding: const EdgeInsets.all(2),
                               itemBuilder: (context, index) {
                                 return Container(
-                                  width: 64,
+                                  width: double.infinity,
+                                  height: 100,
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                       color: Colors.blue.shade300,
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(14),
                                       boxShadow: const [
                                         BoxShadow(
                                           offset: Offset(2, 4),
@@ -138,28 +147,74 @@ class _WeatherViewState extends State<WeatherView> {
                                         )
                                       ]),
                                   margin: const EdgeInsets.only(right: 16),
-                                  child: Column(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        getDayFromDtTxt(forecasts[index].dtTxt),
+                                        getDayFromDtTxt(listDate[index]),
                                         style: const TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 14,
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Image(
-                                          image: NetworkImage(
-                                              'https://openweathermap.org/img/wn/${forecasts[index].weather[0].icon}@2x.png')),
-                                      Text(
-                                        kelvinToCelsius(
-                                            forecasts[index].main.temp),
+                                      const SizedBox(
+                                        width: 12,
+                                      ),
+                                      Expanded(
+                                        child: ListView.separated(
+                                            scrollDirection: Axis.horizontal,
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index2) {
+                                              if (forecasts[listDate[index]]!
+                                                  .asMap()
+                                                  .containsKey(index2)) {
+                                                var temp = forecasts[
+                                                    listDate[index]]![index2];
+                                                return SizedBox(
+                                                  height: 40,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                          getTimeFromDtTxt(
+                                                              temp.dtTxt),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize:
+                                                                      12)),
+                                                      Image(
+                                                        image: NetworkImage(
+                                                            'https://openweathermap.org/img/wn/${temp.weather[0].icon}@2x.png'),
+                                                        height: 44,
+                                                      ),
+                                                      Text(
+                                                        kelvinToCelsius(
+                                                            temp.main.temp),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }
+                                              return Container();
+                                            },
+                                            separatorBuilder: (context, index) {
+                                              return SizedBox(
+                                                width: 18,
+                                              );
+                                            },
+                                            itemCount: 5),
                                       ),
                                     ],
                                   ),
                                 );
                               },
                               separatorBuilder: (context, index) {
-                                return const Divider();
+                                return SizedBox(
+                                  height: 18,
+                                );
                               },
                               itemCount: 5),
                         )
