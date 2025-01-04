@@ -20,8 +20,6 @@ class _FormWeatherViewState extends State<FormWeatherView> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _provinceController = TextEditingController();
   TextEditingController _regencyController = TextEditingController();
-  SearchFieldListItem<Area>? _provinceValue;
-  SearchFieldListItem<String>? _regencyValue;
   List<String> regencies = [];
 
   bool _submitted = false;
@@ -30,33 +28,46 @@ class _FormWeatherViewState extends State<FormWeatherView> {
     setState(() {
       _submitted = true;
     });
+    if (_regencyController.text.isNotEmpty && _nameController.text.isNotEmpty) {
+      final String regency =
+          _regencyController.text.split(' ').skip(1).join(' ');
+      setState(() {
+        _submitted = false;
+      });
+
+      context.read<WeatherBloc>().add(
+            WeatherCheckEvent(
+                name: _nameController.text,
+                province: _provinceController.text,
+                regency: regency),
+          );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<WeatherBloc, WeatherState>(
-      listener: (context, state) {
-        if (state is WeatherError) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.getErrors ?? ''),
-            duration: Duration(seconds: 2),
-          ));
-        }
-      },
-      builder: (context, state) {
-        if (state is WeatherLoading) {
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Weather Rumah Zakat'),
-            backgroundColor: Colors.blue,
-          ),
-          body: Padding(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Weather Rumah Zakat'),
+        backgroundColor: Colors.blue,
+      ),
+      body: BlocConsumer<WeatherBloc, WeatherState>(
+        listener: (context, state) {
+          if (state is WeatherError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('${state.errors}'),
+              duration: Duration(seconds: 2),
+            ));
+          }
+          if (state is WeatherCheck) {
+            Navigator.popAndPushNamed(context, '/weather');
+          }
+        },
+        builder: (context, state) {
+          if (state is WeatherLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Padding(
             padding: const EdgeInsets.all(24),
             child: Stack(
               children: [
@@ -118,7 +129,8 @@ class _FormWeatherViewState extends State<FormWeatherView> {
                                   controller: _provinceController,
                                   onSuggestionTap: (value) {
                                     setState(() {
-                                      _provinceValue = value;
+                                      _provinceController.text =
+                                          value.item!.provinsi;
                                       regencies = state.getAreas
                                           .where((val) =>
                                               val.provinsi ==
@@ -129,13 +141,14 @@ class _FormWeatherViewState extends State<FormWeatherView> {
                                   },
                                   onTap: () {
                                     setState(() {
-                                      _regencyValue = null;
+                                      _regencyController.text = '';
+                                      regencies = [];
                                     });
                                   },
                                   searchInputDecoration: SearchInputDecoration(
                                     labelText: 'Provinsi',
                                     errorText: (_submitted == true &&
-                                            _provinceValue == null)
+                                            _provinceController.text.isEmpty)
                                         ? 'Provinsi harus di isi'
                                         : null,
                                     focusedBorder: OutlineInputBorder(),
@@ -152,7 +165,6 @@ class _FormWeatherViewState extends State<FormWeatherView> {
                                         ),
                                       )
                                       .toList(),
-                                  selectedValue: _provinceValue,
                                 ),
                               ),
                               SizedBox(
@@ -161,13 +173,13 @@ class _FormWeatherViewState extends State<FormWeatherView> {
                                   controller: _regencyController,
                                   onSuggestionTap: (value) {
                                     setState(() {
-                                      _regencyValue = value;
+                                      _regencyController.text = value.item!;
                                     });
                                   },
                                   searchInputDecoration: SearchInputDecoration(
                                     labelText: 'Kota / Kabupaten',
                                     errorText: (_submitted == true &&
-                                            _regencyValue == null)
+                                            _regencyController.text.isEmpty)
                                         ? 'Kota / Kabupaten harus di isi'
                                         : null,
                                     focusedBorder: OutlineInputBorder(),
@@ -184,7 +196,6 @@ class _FormWeatherViewState extends State<FormWeatherView> {
                                         ),
                                       )
                                       .toList(),
-                                  selectedValue: _regencyValue,
                                 ),
                               )
                             ],
@@ -214,9 +225,9 @@ class _FormWeatherViewState extends State<FormWeatherView> {
                 )
               ],
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

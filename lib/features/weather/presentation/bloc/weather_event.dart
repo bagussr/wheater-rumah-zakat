@@ -10,3 +10,12 @@ sealed class WeatherEvent extends Equatable {
 class WeatherInitalEvent extends WeatherEvent {
   const WeatherInitalEvent();
 }
+
+class WeatherCheckEvent extends WeatherEvent {
+  const WeatherCheckEvent(
+      {required this.name, required this.province, required this.regency});
+
+  final String name;
+  final String regency;
+  final String province;
+}

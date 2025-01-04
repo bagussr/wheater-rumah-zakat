@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:wheater_rumah_zakat/features/weather/domain/entity/forecast.dart';
 
 import '../../../../core/errors/failure.dart';
 import '../../../../core/typedef/typedef.dart';
@@ -15,6 +16,20 @@ class WeatherRepositoryImplements implements WeatherRepository {
     try {
       List<Area> list = [];
       final result = await datasource.getProvince();
+      for (var tmp in result) {
+        list.add(tmp.toEntity());
+      }
+      return Right(list);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  FutureResult<List<Forecast>> getWeather(String area) async {
+    try {
+      List<Forecast> list = [];
+      final result = await datasource.getWeather(area);
       for (var tmp in result) {
         list.add(tmp.toEntity());
       }

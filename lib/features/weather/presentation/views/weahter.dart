@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../bloc/weather_bloc.dart';
 
 class WeatherView extends StatefulWidget {
   const WeatherView({super.key});
@@ -23,6 +26,39 @@ class _WeatherViewState extends State<WeatherView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Weather Rumah Zakat'),
+        backgroundColor: Colors.blue,
+      ),
+      body: BlocBuilder<WeatherBloc, WeatherState>(
+        builder: (context, state) {
+          if (state is WeatherCheck) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          _getGreeting(),
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Text(state.name, style: const TextStyle(fontSize: 18)),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
   }
 }
